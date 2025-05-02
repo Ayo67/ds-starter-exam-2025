@@ -96,7 +96,7 @@ export class ExamStack extends cdk.Stack {
     // ==================================
     // Question 2 - Event-Driven architecture
 
-     const bucket = new s3.Bucket(this, "exam-bucket", {
+    const bucket = new s3.Bucket(this, "exam-bucket", {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       publicReadAccess: false,
@@ -122,6 +122,7 @@ export class ExamStack extends cdk.Stack {
       memorySize: 128,
       environment: {
         REGION: "eu-west-1",
+        QUEUE_B_URL: queueB.queueUrl,
       },
     });
 
@@ -136,6 +137,27 @@ export class ExamStack extends cdk.Stack {
       },
     });
     
+    // Set up S3 bucket notification to SNS topic
+    bucket.addEventNotification(
+      s3.EventType.OBJECT_CREATED,
+      new s3n.SnsDestination(topic1)
+    );
+    
+    // Connect SNS topic to SQS Queue A
+    topic1.addSubscription(new subs.SqsSubscription(queueA));
+    
+    // Connect Lambda X to SQS Queue A as event source
+    lambdaXFn.addEventSource(new events.SqsEventSource(queueA, {
+      batchSize: 10
+    }));
+    
+    // Grant Lambda X permission to send messages to Queue B
+    queueB.grantSendMessages(lambdaXFn);
+    
+    // Connect Lambda Y to SQS Queue B as event source
+    lambdaYFn.addEventSource(new events.SqsEventSource(queueB, {
+      batchSize: 10
+    }));
   }
 }
   
