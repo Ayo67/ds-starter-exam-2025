@@ -145,10 +145,12 @@ export class ExamStack extends cdk.Stack {
     
     // Connect SNS topic to SQS Queue A with a filter policy
     topic1.addSubscription(new subs.SqsSubscription(queueA, {
+      rawMessageDelivery: true,
       filterPolicy: {
         "address.country": sns.SubscriptionFilter.stringFilter({
           allowlist: ["Ireland", "China"]
         }),
+        
       },
     }));
     
