@@ -143,8 +143,14 @@ export class ExamStack extends cdk.Stack {
       new s3n.SnsDestination(topic1)
     );
     
-    // Connect SNS topic to SQS Queue A
-    topic1.addSubscription(new subs.SqsSubscription(queueA));
+    // Connect SNS topic to SQS Queue A with a filter policy
+    topic1.addSubscription(new subs.SqsSubscription(queueA, {
+      filterPolicy: {
+        "address.country": sns.SubscriptionFilter.stringFilter({
+          allowlist: ["Ireland", "China"]
+        }),
+      },
+    }));
     
     // Connect Lambda X to SQS Queue A as event source
     lambdaXFn.addEventSource(new events.SqsEventSource(queueA, {
@@ -160,4 +166,3 @@ export class ExamStack extends cdk.Stack {
     }));
   }
 }
-  

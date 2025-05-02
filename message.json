@@ -1,0 +1,9 @@
+{
+    "name": "Diarmuid O Connor",
+    "address": {
+        "street": "1 Main Street",
+        "city": "Dublin",
+        "country": "Ireland"
+    },
+    "email": "doconnor@example.ie"
+}
