@@ -75,7 +75,7 @@ export class ExamStack extends cdk.Stack {
 
     const anEndpoint = api.root.addResource("patha");
     
-    // New endpoint for getting crew member details by role and movie ID
+    // New endpoints for getting crew member details by role and movie ID
     const crewResource = api.root.addResource("crew");
     const roleResource = crewResource.addResource("{role}");
     const moviesResource = roleResource.addResource("movies");
