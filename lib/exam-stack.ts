@@ -41,6 +41,9 @@ export class ExamStack extends cdk.Stack {
       },
     });
 
+    // Grant the Lambda function read access to the DynamoDB table
+    table.grantReadData(question1Fn);
+
     new custom.AwsCustomResource(this, "moviesddbInitData", {
       onCreate: {
         service: "DynamoDB",
@@ -71,7 +74,24 @@ export class ExamStack extends cdk.Stack {
     });
 
     const anEndpoint = api.root.addResource("patha");
-
+    
+    // New endpoint for getting crew member details by role and movie ID
+    const crewResource = api.root.addResource("crew");
+    const roleResource = crewResource.addResource("{role}");
+    const moviesResource = roleResource.addResource("movies");
+    const movieIdResource = moviesResource.addResource("{movieId}");
+    
+    console.log("API Endpoint Path:", `/crew/{role}/movies/{movieId}`);
+    
+    // Integrate the Lambda function with the API Gateway endpoint
+    movieIdResource.addMethod(
+      "GET",
+      new apig.LambdaIntegration(question1Fn, {
+        proxy: true,
+      })
+    );
+    
+  
 
     // ==================================
     // Question 2 - Event-Driven architecture
